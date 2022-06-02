@@ -80,7 +80,7 @@ class SesMailFake extends MailFake implements SesMailerInterface
 
         $symfonyMessage = $message->getSymfonyMessage();
         $sentEmail = $this->initMessage($symfonyMessage);
-        $emailBody = $this->setupTracking($message->getBody(), $sentEmail);
+        $emailBody = $this->setupTracking((string) $message->getHtmlBody(), $sentEmail);
 
         $view->sesBody = $emailBody;
 

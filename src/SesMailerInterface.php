@@ -5,13 +5,12 @@ namespace Juhasev\LaravelSes;
 use Juhasev\LaravelSes\Contracts\BatchContract;
 use Juhasev\LaravelSes\Contracts\SentEmailContract;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Mime\Part\AbstractPart;
 
 interface SesMailerInterface
 {
     public function initMessage(Email $message): SentEmailContract;
 
-    public function setupTracking(AbstractPart $setupTracking, SentEmailContract $sentEmail): string;
+    public function setupTracking($setupTracking, SentEmailContract $sentEmail): string;
 
     public function setBatch(string $batch): SesMailerInterface;
 
