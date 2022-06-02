@@ -205,7 +205,7 @@ class SesMailer extends Mailer implements SesMailerInterface
 
         $sentEmail = $this->initMessage($message);
 
-        $newBody = $this->setupTracking($message->getBody(), $sentEmail);
+        $newBody = $this->setupTracking((string) $message->getHtmlBody(), $sentEmail);
 
         $message->html($newBody);
 

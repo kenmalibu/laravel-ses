@@ -52,7 +52,7 @@ trait TrackingTrait
     /**
      * Set tracking
      *
-     * @param AbstractPart $setupTracking
+     * @param string $setupTracking
      * @param SentEmailContract $sentEmail
      *
      * @return string
@@ -64,11 +64,11 @@ trait TrackingTrait
      * @throws StrictException
      * @throws Exception
      */
-    public function setupTracking(AbstractPart $setupTracking, SentEmailContract $sentEmail): string
+    public function setupTracking($setupTracking, SentEmailContract $sentEmail): string
     {
         $this->batch = null;
 
-        $mailProcessor = new MailProcessor($sentEmail, $setupTracking->toString());
+        $mailProcessor = new MailProcessor($sentEmail, $setupTracking);
 
         if ($this->openTracking) {
             $mailProcessor->openTracking();
