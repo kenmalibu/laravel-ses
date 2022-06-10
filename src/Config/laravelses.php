@@ -49,8 +49,30 @@ return [
     /**
      * Smtp Ping Threshold.
      *
-     * By default, the threshold is set to 100 seconds.
+     * Sets the minimum number of seconds required between two messages, before the server is pinged.
+     * If the transport wants to send a message and the time since the last message exceeds the specified threshold,
+     * the transport will ping the server first (NOOP command) to check if the connection is still alive.
+     *
+     * Amazon SES SMTP server automatically closes connections after 10 seconds of inactivity.
+     *
+     * For this reason we set the ping threshold to 10 seconds.
      */
 
     'ping_threshold' => env('SES_PING_THRESHOLD', 10),
+
+    /**
+     * Smtp Restart Threshold.
+     *
+     * Sets the maximum number of messages to send before re-starting the transport.
+     *
+     * By default, the threshold is set to 100 (and no sleep at restart).
+     */
+    'restart_threshold' => [
+
+        // The maximum number of messages (0 to disable)
+        'threshold' => env('SES_RESTART_THRESHOLD', 100),
+
+        // The number of seconds to sleep between stopping and re-starting the transport
+        'sleep' => env('SES_RESTART_SLEEP', 0),
+    ],
 ];

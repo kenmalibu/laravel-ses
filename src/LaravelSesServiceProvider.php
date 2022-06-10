@@ -70,10 +70,23 @@ class LaravelSesServiceProvider extends ServiceProvider
 
             $symfonyMailer = app('mailer')->getSymfonyTransport();
 
+            $sesConfig = $app->make('config')->get('laravelses');
+
             try {
-                $symfonyMailer->setPingThreshold($app->make('config')->get('laravelses')['ping_threshold']);
+                $symfonyMailer->setPingThreshold(
+                    (int) Arr::get($sesConfig, 'ping_threshold', 10)
+                );
             } catch (Exception $e) {
-                logger("Unable to set ping threshold for Symfony Mailer. ".$e->getMessage());
+                logger("Unable to set ping threshold on Symfony Mailer. ".$e->getMessage());
+            }
+
+            try {
+                $symfonyMailer->setRestartThreshold(
+                    (int) Arr::get($sesConfig, 'restart_threshold.threshold', 100),
+                    (int) Arr::get($sesConfig, 'restart_threshold.sleep', 0)
+                );
+            } catch (Exception $e) {
+                logger("Unable to set restart threshold on Symfony Mailer. ".$e->getMessage());
             }
 
             // Once we have created the mailer instance, we will set a container instance
