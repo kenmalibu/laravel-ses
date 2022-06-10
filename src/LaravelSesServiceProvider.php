@@ -2,6 +2,7 @@
 
 namespace Juhasev\LaravelSes;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
@@ -67,9 +68,26 @@ class LaravelSesServiceProvider extends ServiceProvider
     {
         $this->app->singleton('SesMailer', function ($app) {
 
-            $config = $app->make('config')->get('mail');
-
             $symfonyMailer = app('mailer')->getSymfonyTransport();
+
+            $sesConfig = $app->make('config')->get('laravelses');
+
+            try {
+                $symfonyMailer->setPingThreshold(
+                    (int) Arr::get($sesConfig, 'ping_threshold', 10)
+                );
+            } catch (Exception $e) {
+                logger("Unable to set ping threshold on Symfony Mailer. ".$e->getMessage());
+            }
+
+            try {
+                $symfonyMailer->setRestartThreshold(
+                    (int) Arr::get($sesConfig, 'restart_threshold.threshold', 100),
+                    (int) Arr::get($sesConfig, 'restart_threshold.sleep', 0)
+                );
+            } catch (Exception $e) {
+                logger("Unable to set restart threshold on Symfony Mailer. ".$e->getMessage());
+            }
 
             // Once we have created the mailer instance, we will set a container instance
             // on the mailer. This allows us to resolve mailer classes via containers
@@ -84,6 +102,8 @@ class LaravelSesServiceProvider extends ServiceProvider
             if ($app->bound('queue')) {
                 $mailer->setQueue($app['queue']);
             }
+
+            $config = $app->make('config')->get('mail');
 
             // Next we will set all of the global addresses on this mailer, which allows
             // for easy unification of all "from" addresses as well as easy debugging
