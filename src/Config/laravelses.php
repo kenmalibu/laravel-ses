@@ -44,5 +44,13 @@ return [
         'EmailComplaint' => EmailComplaint::class,
         'EmailLink' => EmailLink::class,
         'EmailOpen' => EmailOpen::class
-    ]
+    ],
+
+    /**
+     * Smtp Ping Threshold.
+     *
+     * By default, the threshold is set to 100 seconds.
+     */
+
+    'ping_threshold' => env('SES_PING_THRESHOLD', 10),
 ];
