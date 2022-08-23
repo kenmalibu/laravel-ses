@@ -2,7 +2,6 @@
 
 namespace Juhasev\LaravelSes\Controllers;
 
-use Aws\Sns\Exception\InvalidSnsMessageException;
 use Illuminate\Support\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -28,8 +27,8 @@ class ComplaintController extends BaseController
     {
         try {
             $this->validateSns($request);
-        } catch (InvalidSnsMessageException $e) {
-            Log::alert("Invalid message: ". print_r($e, true));
+        } catch (Exception $e) {
+            Log::alert('Invalid message: '.$e->getMessage().' '.$e->getTraceAsString());
 
             return response()->json(['success' => false]);
         }
