@@ -28,12 +28,15 @@ class ComplaintController extends BaseController
         try {
             $this->validateSns($request);
         } catch (Exception $e) {
-            Log::alert('Invalid message: '.$e->getMessage().' '.$e->getTraceAsString());
+            Log::alert(
+                'SES email feedback request failed validate: '.$e->getMessage().' '.$e->getTraceAsString(),
+                json_decode(request()?->getContent(), true, 512, JSON_THROW_ON_ERROR)
+            );
 
             return response()->json(['success' => false]);
         }
 
-        $content = request()->getContent();
+        $content = request()?->getContent();
 
         $this->logResult($content);
 
