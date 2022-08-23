@@ -2,6 +2,7 @@
 
 namespace Juhasev\LaravelSes\Controllers;
 
+use Aws\Sns\Exception\InvalidSnsMessageException;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -25,7 +26,13 @@ class DeliveryController extends BaseController
 
     public function delivery(ServerRequestInterface $request)
     {
-        $this->validateSns($request);
+        try {
+            $this->validateSns($request);
+        } catch (InvalidSnsMessageException $e) {
+            Log::alert("Invalid message: ". print_r($e, true));
+
+            return response()->json(['success' => false]);
+        }
 
         $content = request()->getContent();
 

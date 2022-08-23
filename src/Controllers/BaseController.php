@@ -6,6 +6,9 @@ use Aws\Sns\Exception\InvalidSnsMessageException;
 use Aws\Sns\Message;
 use Aws\Sns\MessageValidator;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -18,7 +21,6 @@ class BaseController extends Controller
      *
      * @param ServerRequestInterface $request
      */
-
     protected function validateSns(ServerRequestInterface $request)
     {
         if (config('laravelses.aws_sns_validator')) {
@@ -27,14 +29,7 @@ class BaseController extends Controller
 
             $validator = new MessageValidator();
 
-            try {
-
-                $validator->validate($message);
-            } catch (InvalidSnsMessageException $e) {
-
-                // Pretend we're not here if the message is invalid
-                abort(404, 'Not Found');
-            }
+            $validator->validate($message);
         }
     }
 
