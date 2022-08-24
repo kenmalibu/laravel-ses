@@ -222,7 +222,13 @@ class FeatureTestCase extends OrchestraTestCase
             "Type" => "Notification",
             "MessageId" => "950a823d-501f-5137-a9a3-d0246f6094b6",
             "TopicArn" => "arn:aws:ses:us-west-2:635608510762:identity/sampleninja.io",
-            "Message" => json_encode($message)
+            "Subject" => "Amazon SES Email Event Notification",
+            "Message" => json_encode($message),
+            "Timestamp" => "2021-02-07T21:10:48.412Z",
+            "SignatureVersion" => "1",
+            "Signature" => "TOilTHyNNPPpsv5FQGcyt45YR/pVJYzBljw/CJbIYhLePWAC9ZSVH4EJCNpuDCoDUbco6+I5A7gzHOM7elLdMTB5TSpdp38MF63X3WpHHiBLON6astguDTmqJxj6OzxRpe31bOzxJBwC6eMNs5YxEw5GL/s97lp+7M47HVShOVQEmIkYqaLsMCLAoHkC22h9dFaxJHk/UVJv3fR4Q5MPpPlI03Ol4udpxA7Z3dolb9nwTtchbMAo0J9ZpAiFQzD0G9pMh+DYm40tqBJjyXwk1R9kFcfdL4LaBOudIf76KVsbPEf5B5QCnEMEwp03bhhwx9lYKEYiTZZOGWDkeBBY2A==",
+            "SigningCertURL" => "https://sns.us-west-2.amazonaws.com/SimpleNotificationService-010a507c1833636cd94bdb98bd93083a.pem",
+            "UnsubscribeURL" => "https://sns.us-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-2:635608510762:staging-ses-bounce-us-west-2:caf51da3-ce68-4d64-b9f2-c9f51e17401d"
         ];
     }
 
@@ -297,7 +303,13 @@ class FeatureTestCase extends OrchestraTestCase
             "Type" => "Notification",
             "MessageId" => "950a823d-501f-5137-a9a3-d0246f6094b6",
             "TopicArn" => "arn:aws:sns:eu-west-1:111111111111:laravel-ses-Delivery",
-            "Message" => json_encode($message)
+            "Subject" => "Amazon SES Email Event Notification",
+            "Message" => json_encode($message),
+            "Timestamp" => "2021-02-07T21:10:48.412Z",
+            "SignatureVersion" => "1",
+            "Signature" => "TOilTHyNNPPpsv5FQGcyt45YR/pVJYzBljw/CJbIYhLePWAC9ZSVH4EJCNpuDCoDUbco6+I5A7gzHOM7elLdMTB5TSpdp38MF63X3WpHHiBLON6astguDTmqJxj6OzxRpe31bOzxJBwC6eMNs5YxEw5GL/s97lp+7M47HVShOVQEmIkYqaLsMCLAoHkC22h9dFaxJHk/UVJv3fR4Q5MPpPlI03Ol4udpxA7Z3dolb9nwTtchbMAo0J9ZpAiFQzD0G9pMh+DYm40tqBJjyXwk1R9kFcfdL4LaBOudIf76KVsbPEf5B5QCnEMEwp03bhhwx9lYKEYiTZZOGWDkeBBY2A==",
+            "SigningCertURL" => "https://sns.us-west-2.amazonaws.com/SimpleNotificationService-010a507c1833636cd94bdb98bd93083a.pem",
+            "UnsubscribeURL" => "https://sns.us-west-2.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-2:635608510762:staging-ses-bounce-us-west-2:caf51da3-ce68-4d64-b9f2-c9f51e17401d"
         ];
     }
 }

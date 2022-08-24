@@ -56,6 +56,27 @@ class DeliveryTrackingTest extends FeatureTestCase
         $this->assertNull(ModelResolver::get('SentEmail')::first()->delivered_at);
     }
 
+    public function testDeliveryTrackingShouldFailsDueToInvalidPayload()
+    {
+        $this->app['config']->set('laravelses.aws_sns_validator', true);
+
+        Event::fake();
+
+        $model = ModelResolver::get('SentEmail')::create([
+            'message_id' => 'a4947f1f3fdb397b3a7bf2d3b7d2f53e@swift.generated',
+            'email' => 'eriksen23@gmail.com'
+        ]);
+
+        $this
+            ->json('POST', '/ses/notification/delivery',
+                $this->generateDeliveryPayload($model->message_id, $model->email)
+            )
+            ->assertSuccessful()
+            ->assertJson(['success' => false]);
+
+        Event::assertNotDispatched(SesDeliveryEvent::class);
+    }
+
     private $exampleTopicResponse = '{
           "Type": "Notification",
           "MessageId": "6abf341d-f4e7-5d58-a5f6-6c84bc4e39f2",

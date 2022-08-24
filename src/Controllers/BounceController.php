@@ -5,7 +5,6 @@ namespace Juhasev\LaravelSes\Controllers;
 use Illuminate\Support\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Juhasev\LaravelSes\Contracts\EmailBounceContract;
@@ -22,29 +21,30 @@ class BounceController extends BaseController
      * @return JsonResponse
      * @throws Exception
      */
-
     public function bounce(ServerRequestInterface $request)
     {
-        try {
-            $this->validateSns($request);
-        } catch (Exception $e) {
-            Log::alert(
-                'SES email feedback request failed validate: '.$e->getMessage().' '.$e->getTraceAsString(),
-                json_decode(request()?->getContent(), true, 512, JSON_THROW_ON_ERROR)
-            );
-
-            return response()->json(['success' => false]);
-        }
-
         $content = request()?->getContent();
 
         $this->logResult($content);
 
-        $result = json_decode($content);
+        try {
+            $result = json_decode($content, associative: true, flags: JSON_THROW_ON_ERROR);
+        } catch (Exception $e) {
+            Log::error('Failed to parse AWS SES Bounce request ' . $e->getMessage() . ' ' . $e->getTraceAsString());
 
-        if ($result === null) {
-            Log::error('Failed to parse AWS SES Bounce request '. json_last_error_msg());
-            return response()->json(['success' => false], 422);
+            return response()->json(['success' => false]);
+        }
+
+        if ($this->shouldValidateRequest()) {
+            $result = $this->validateSns($request)?->toArray();
+
+            if ($result === null) {
+                Log::error(
+                    'Failed to read content from AWS SES Complaint request: ' . json_encode(request()?->getContent())
+                );
+
+                return response()->json(['success' => false]);
+            }
         }
 
         if ($this->isTopicConfirmation($result)) {
@@ -61,10 +61,12 @@ class BounceController extends BaseController
             ]);
         }
 
-        $message = json_decode($result->Message);
+        try {
+            $message = json_decode($result['Message'], associative: false, flags: JSON_THROW_ON_ERROR);
+        } catch (Exception $e) {
+            Log::error('Failed to decode Message from AWS SES Delivery request ' . $e->getMessage() . ' ' . $e->getTraceAsString());
 
-        if ($message === null) {
-            throw new Exception("Result message failed to decode: ".json_last_error_msg()."! ". print_r($result,true));
+            return response()->json(['success' => false]);
         }
 
         $this->persistBounce($message);
@@ -83,8 +85,7 @@ class BounceController extends BaseController
      * @param $message
      * @throws Exception
      */
-
-    protected function persistBounce($message): void
+    protected function persistBounce($message)
     {
         $messageId = $this->parseMessageId($message);
 
@@ -93,8 +94,8 @@ class BounceController extends BaseController
                 ->whereBounceTracking(true)
                 ->firstOrFail();
 
-        } catch (ModelNotFoundException $e) {
-            $this->logMessage('Message ID ('.$messageId.') not found in the SentEmail, this email is likely sent without Laravel SES. Skipping delivery processing...');
+        } catch (ModelNotFoundException) {
+            $this->logMessage('Message ID (' . $messageId . ') not found in the SentEmail, this email is likely sent without Laravel SES. Skipping delivery processing...');
             return;
         }
 
@@ -107,7 +108,7 @@ class BounceController extends BaseController
 
             $this->sendEvent($bounce);
 
-        } catch (QueryException $e) {
+        } catch (Exception $e) {
             Log::error("Failed inserting EmailBounce, got error: " . $e->getMessage());
         }
     }
@@ -117,7 +118,6 @@ class BounceController extends BaseController
      *
      * @param EmailBounceContract $bounce
      */
-
     protected function sendEvent(EmailBounceContract $bounce)
     {
         event(EventFactory::create('Bounce', 'EmailBounce', $bounce->getId()));

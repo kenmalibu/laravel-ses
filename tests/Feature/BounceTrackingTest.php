@@ -77,6 +77,27 @@ class BounceTrackingTest extends FeatureTestCase
         $this->assertNull(ModelResolver::get('EmailBounce')::first());
     }
 
+    public function testBounceTrackingShouldFailsDueToInvalidPayload()
+    {
+        $this->app['config']->set('laravelses.aws_sns_validator', true);
+
+        Event::fake();
+
+        $model = ModelResolver::get('SentEmail')::create([
+            'message_id' => '84b8739d03d2245baed4999232916608@swift.generated',
+            'email' => 'eriksen23@gmail.com'
+        ]);
+
+        $this
+            ->json('POST', '/ses/notification/bounce',
+                $this->generateBouncePayload($model->message_id, $model->email)
+            )
+            ->assertSuccessful()
+            ->assertJson(['success' => false]);
+
+        Event::assertNotDispatched(SesBounceEvent::class);
+    }
+
     private $exampleTopicResponse = '{
       "Type": "Notification",
       "MessageId": "6abf341d-f4e7-5d58-a5f6-6c84bc4e39f2",

@@ -2,6 +2,7 @@
 
 namespace Juhasev\LaravelSes\Models;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -101,6 +102,7 @@ class SentEmail extends Model implements SentEmailContract
     public function setDeliveredAt($time)
     {
         $this->delivered_at = $time;
+
         $this->save();
     }
 

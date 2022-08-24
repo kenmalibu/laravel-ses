@@ -16,8 +16,8 @@ class ModelResolverTest extends UnitTestCase
 {
     public function testModelResolverThrowsExceptionForInvalidName(): void
     {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('Model (invalid-name) could not be resolved');
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Model (invalid-name) could not be resolved');
 
         ModelResolver::get('invalid-name');
     }
@@ -27,7 +27,7 @@ class ModelResolverTest extends UnitTestCase
      */
     public function testModelResolverGet($name, $expected): void
     {
-        self::assertEquals($expected, ModelResolver::get($name));
+        $this->assertEquals($expected, ModelResolver::get($name));
     }
 
     public function modelResolverData(): array

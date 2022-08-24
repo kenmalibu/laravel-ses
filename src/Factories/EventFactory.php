@@ -2,6 +2,8 @@
 
 namespace Juhasev\LaravelSes\Factories;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 class EventFactory
@@ -22,6 +24,10 @@ class EventFactory
             throw new InvalidArgumentException('Class '.$class.' not found in SES EventFactory!');
         }
 
-        return new $class($modelName,$modelId);
+        try {
+            return new $class($modelName,$modelId);
+        } catch (ModelNotFoundException $e) {
+            Log::error('Failed to send event [Ses'.$eventName.'Event]. '.$e->getMessage().' '.$e->getTraceAsString());
+        }
     }
 }

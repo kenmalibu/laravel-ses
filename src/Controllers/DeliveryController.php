@@ -5,7 +5,6 @@ namespace Juhasev\LaravelSes\Controllers;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Juhasev\LaravelSes\Contracts\SentEmailContract;
@@ -20,31 +19,32 @@ class DeliveryController extends BaseController
      *
      * @param ServerRequestInterface $request
      * @return JsonResponse
-     * @throws \Exception
+     * @throws Exception
      */
-
     public function delivery(ServerRequestInterface $request)
     {
-        try {
-            $this->validateSns($request);
-        } catch (Exception $e) {
-            Log::alert(
-                'SES email feedback request failed validate: '.$e->getMessage().' '.$e->getTraceAsString(),
-                json_decode(request()?->getContent(), true, 512, JSON_THROW_ON_ERROR)
-            );
-
-            return response()->json(['success' => false]);
-        }
-
         $content = request()?->getContent();
 
         $this->logResult($content);
 
-        $result = json_decode($content);
+        try {
+            $result = json_decode($content, associative: true, flags: JSON_THROW_ON_ERROR);
+        } catch (Exception $e) {
+            Log::error('Failed to parse AWS SES Delivery request ' . $e->getMessage() . ' ' . $e->getTraceAsString());
 
-        if ($result === null) {
-            Log::error('Failed to parse AWS SES Delivery request '. json_last_error_msg());
-            return response()->json(['success' => false], 422);
+            return response()->json(['success' => false]);
+        }
+
+        if ($this->shouldValidateRequest()) {
+            $result = $this->validateSns($request)?->toArray();
+
+            if ($result === null) {
+                Log::error(
+                    'Failed to read content from AWS SES Complaint request: ' . json_encode(request()?->getContent())
+                );
+
+                return response()->json(['success' => false]);
+            }
         }
 
         if ($this->isTopicConfirmation($result)) {
@@ -61,10 +61,12 @@ class DeliveryController extends BaseController
             ]);
         }
 
-        $message = json_decode($result->Message);
+        try {
+            $message = json_decode($result['Message'], associative: false, flags: JSON_THROW_ON_ERROR);
+        } catch (Exception $e) {
+            Log::error('Failed to decode Message from AWS SES Delivery request ' . $e->getMessage() . ' ' . $e->getTraceAsString());
 
-        if ($message === null) {
-            throw new Exception("Result message failed to decode: ".json_last_error_msg()."! ". print_r($result,true));
+            return response()->json(['success' => false]);
         }
 
         $this->persistDelivery($message);
@@ -81,34 +83,32 @@ class DeliveryController extends BaseController
      * Persist delivery record to the database
      *
      * @param $message
-     * @throws \Exception
+     * @throws Exception
      */
-
-    protected function persistDelivery($message): void
+    protected function persistDelivery($message)
     {
         $messageId = $this->parseMessageId($message);
-
-        $deliveryTime = Carbon::parse($message->delivery->timestamp);
 
         try {
             $sentEmail = ModelResolver::get('SentEmail')::whereMessageId($messageId)
                 ->whereDeliveryTracking(true)
                 ->firstOrFail();
 
-        } catch (ModelNotFoundException $e) {
-            $this->logMessage('Message ID ('.$messageId.') not found in the SentEmail, this email is likely sent without Laravel SES. Skipping delivery processing...');
+        } catch (ModelNotFoundException) {
+            $this->logMessage('Message ID (' . $messageId . ') not found in the SentEmail, this email is likely sent without Laravel SES. Skipping delivery processing...');
             return;
         }
 
         try {
+            $deliveryTime = Carbon::parse($message->delivery->timestamp);
+
             $sentEmail->setDeliveredAt($deliveryTime);
 
-        } catch (QueryException $e) {
+            $this->sendEvent($sentEmail->refresh());
 
-            Log::error("Failed updating delivered timestamp, got error: " . $e->getMessage());
+        } catch (Exception $e) {
+            Log::error("Failed updating delivered timestamp, got error: " . $e->getMessage() . ' ' . $e->getTraceAsString());
         }
-
-        $this->sendEvent($sentEmail);
     }
 
     /**
@@ -116,7 +116,6 @@ class DeliveryController extends BaseController
      *
      * @param SentEmailContract $sentEmail
      */
-
     protected function sendEvent(SentEmailContract $sentEmail)
     {
         event(EventFactory::create('Delivery', 'SentEmail', $sentEmail->getId()));
