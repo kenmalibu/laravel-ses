@@ -30,7 +30,5 @@ class SesDeliveryEvent extends BaseEvent
         $this->data = ModelResolver::get($modelName)::select([
                 'id', 'message_id', 'email', 'batch_id', 'sent_at', 'delivered_at']
         )->with('batch')->findOrFail($modelId)->toArray();
-
-        Log::debug("Created delivery event with data: " . print_r($this->data, true));
     }
 }
