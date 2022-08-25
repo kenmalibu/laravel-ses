@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Models;
 
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes;
 
 use Aws\SesV2\Exception\SesV2Exception;

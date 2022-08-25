@@ -1,11 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Factories;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
-use function PHPUnit\Framework\throwException;
 
 class EventFactory
 {
@@ -20,10 +19,10 @@ class EventFactory
      */
     public static function create(string $eventName, string $modelName, int $modelId): EventInterface
     {
-        $class = 'Juhasev\\LaravelSes\\Factories\\Events\\Ses' . $eventName. 'Event';
+        $class = 'Juhasev\\LaravelSes\\Factories\\Events\\Ses' . $eventName . 'Event';
 
         if (!class_exists($class)) {
-            throw new InvalidArgumentException('Class '.$class.' not found in SES EventFactory!');
+            throw new InvalidArgumentException('Class ' . $class . ' not found in SES EventFactory!');
         }
 
         return new $class($modelName, $modelId);

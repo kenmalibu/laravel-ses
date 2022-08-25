@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;

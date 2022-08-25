@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Models;
 
 use Exception;

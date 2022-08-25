@@ -1,8 +1,8 @@
 <?php
 
-namespace Juhasev\LaravelSes\Exceptions;
+declare(strict_types=1);
 
-use RuntimeException;
+namespace Juhasev\LaravelSes\Exceptions;
 
 class LaravelSesTooManyRecipientsException extends LaravelSesException
 {

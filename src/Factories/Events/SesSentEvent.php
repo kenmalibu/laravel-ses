@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Factories\Events;
 
 use Exception;
@@ -25,7 +27,7 @@ class SesSentEvent extends BaseEvent
     public function __construct(string $modelName, int $modelId)
     {
         $this->data = ModelResolver::get($modelName)::select([
-                'id','message_id','email','batch_id','sent_at','delivered_at']
+                'id', 'message_id', 'email', 'batch_id', 'sent_at', 'delivered_at']
         )->with('batch')->findOrFail($modelId)->toArray();
     }
 }

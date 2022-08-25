@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Services;
 
 use Exception;
 use Juhasev\LaravelSes\Contracts\BatchContract;
-use Juhasev\LaravelSes\Models\Batch;
 use Juhasev\LaravelSes\Repositories\BatchStatRepository;
 use Juhasev\LaravelSes\Repositories\EmailRepository;
 use Juhasev\LaravelSes\Repositories\EmailStatRepository;

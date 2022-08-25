@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes;
 
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 
 class ModelResolver
 {

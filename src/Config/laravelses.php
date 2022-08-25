@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Juhasev\LaravelSes\Models\Batch;
 use Juhasev\LaravelSes\Models\EmailBounce;
 use Juhasev\LaravelSes\Models\EmailComplaint;
@@ -24,7 +26,7 @@ return [
      * NOTE: You cannot run package unit tests with this enabled!
      */
 
-    'debug' => env('SES_DEBUG', true),
+    'debug' => env('SES_DEBUG', false),
 
     /**
      * Log prefix for all logged messages. Set to whatever you want for convenient debugging

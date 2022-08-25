@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Commands;
 
 use Illuminate\Console\Command;
@@ -30,6 +32,6 @@ class SetupSns extends Command
     {
         SnsSetup::create($this, $this->argument('domain'));
 
-        return 0;
+        return self::SUCCESS;
     }
 }

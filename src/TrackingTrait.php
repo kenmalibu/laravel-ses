@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes;
 
 use Exception;
@@ -10,7 +12,6 @@ use PHPHtmlParser\Exceptions\CircularException;
 use PHPHtmlParser\Exceptions\CurlException;
 use PHPHtmlParser\Exceptions\NotLoadedException;
 use PHPHtmlParser\Exceptions\StrictException;
-use Symfony\Component\Mime\Part\AbstractPart;
 
 trait TrackingTrait
 {

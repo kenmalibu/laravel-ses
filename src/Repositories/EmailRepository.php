@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Repositories;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Juhasev\LaravelSes\ModelResolver;
 
 class EmailRepository
