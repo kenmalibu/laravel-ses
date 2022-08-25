@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Controllers;
 
 use Illuminate\Routing\Redirector;
@@ -10,7 +12,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Juhasev\LaravelSes\Contracts\EmailOpenContract;
-use Juhasev\LaravelSes\Contracts\SentEmailContract;
 use Juhasev\LaravelSes\Factories\EventFactory;
 use Juhasev\LaravelSes\ModelResolver;
 
@@ -23,7 +24,7 @@ class OpenController extends BaseController
      * @return JsonResponse|RedirectResponse|Redirector
      * @throws Exception
      */
-    public function open($beaconIdentifier)
+    public function open($beaconIdentifier): JsonResponse|Redirector|RedirectResponse
     {
         try {
             $emailOpen = ModelResolver::get('EmailOpen')::whereBeaconIdentifier($beaconIdentifier)->firstOrFail();
@@ -51,7 +52,7 @@ class OpenController extends BaseController
      *
      * @param EmailOpenContract $emailOpen
      */
-    protected function sendEvent(EmailOpenContract $emailOpen)
+    protected function sendEvent(EmailOpenContract $emailOpen): void
     {
         event(EventFactory::create('Open', 'EmailOpen', $emailOpen->getId()));
     }

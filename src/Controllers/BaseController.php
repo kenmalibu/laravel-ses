@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Controllers;
 
 use Aws\Sns\Exception\InvalidSnsMessageException;
@@ -10,7 +12,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 
 class BaseController extends Controller
@@ -18,75 +19,49 @@ class BaseController extends Controller
     /**
      * Validate SNS requests from AWS
      *
-     * @param ServerRequestInterface $request
-     * @return Message|null
+     * @param Message $message
+     * @throws InvalidSnsMessageException
      */
-    protected function validateSns(ServerRequestInterface $request): Message|null
+    protected function validateSns(Message $message): void
     {
-        $message = Message::fromPsrRequest($request);
-
         $validator = new MessageValidator();
 
-        try {
-            $validator->validate($message);
-
-            return $message;
-        } catch (InvalidSnsMessageException $e) {
-            Log::error('SES email feedback request failed validate: ' . $e->getMessage() . ' ' . $e->getTraceAsString());
-
-            return null;
-        }
-    }
-
-    /**
-     * Parse message ID out of message
-     *
-     * @param $message
-     * @return string
-     */
-    protected function parseMessageId($message): string
-    {
-        $messageId = collect($message->mail->headers)
-            ->where('name', 'Message-ID')
-            ->pluck('value')
-            ->first();
-
-        $messageId = str_replace(['<','>'], '', $messageId);
-
-        return $messageId;
+        $validator->validate($message);
     }
 
     /**
      * Make call back to AWS to confirm subscription
      *
-     * @param array $result
+     * @param Message $message
      * @return void
      * @throws GuzzleException
+     * @throws RuntimeException
      */
-    protected function confirmSubscription(array $result): void
+    protected function confirmSubscription(Message $message): void
     {
-        if (! isset($result['SubscribeURL'], $result['TopicArn'])) {
-            throw new RuntimeException('Failed to confirm subscription because of missing SubscribeURL param: '. json_encode($result));
+        if (! isset($message['SubscribeURL'])) {
+            throw new RuntimeException('Failed to confirm subscription because of missing SubscribeURL param: '. json_encode($message));
         }
 
-        (new Client)->get($result['SubscribeURL']);
+        $response = (new Client)->get($message['SubscribeURL']);
 
-        $this->logMessage("Subscribed to (".$result['TopicArn'].") using GET Request " . $result['SubscribeURL']);
+        if ($response->getStatusCode() !== 200) {
+            throw new RuntimeException('Subscription confirmation failed: '. json_encode($message));
+        }
+
+        $this->logMessage("Subscribed to (".$message['TopicArn'].") using GET Request " . $message['SubscribeURL']);
     }
 
     /**
      * If AWS is trying to confirm subscription
      *
-     * @param array $result
+     * @param Message $message
      * @return bool
      */
-    protected function isSubscriptionConfirmation(array $result): bool
+    protected function isSubscriptionConfirmation(Message $message): bool
     {
-        if (
-            isset($result['Type'], $result['TopicArn']) &&
-            $result['Type'] === 'SubscriptionConfirmation'
-        ) {
-            $this->logMessage("Received subscription confirmation: ". $result['TopicArn']);
+        if ($message['Type'] === 'SubscriptionConfirmation') {
+            $this->logMessage("Received subscription confirmation: ". $message['TopicArn']);
 
             return true;
         }
@@ -97,20 +72,20 @@ class BaseController extends Controller
     /**
      * Is topic confirmation
      *
-     * @param array $result
+     * @param Message $message
      * @return bool
      */
-    protected function isTopicConfirmation(array $result): bool
+    protected function isTopicConfirmation(Message $message): bool
     {
         if (
-            isset($result['Type'], $result['Message'], $result['TopicArn']) &&
-            $result['Type'] === 'Notification' &&
-            Str::contains($result['Message'], "Successfully validated SNS topic")
+            $message['Type'] === 'Notification' &&
+            Str::contains($message['Message'], "Successfully validated SNS topic")
         ) {
-            $this->logMessage('SNS Topic Validated: ' . $result['TopicArn']);
+            $this->logMessage('SNS Topic Validated: ' . $message['TopicArn']);
 
             return true;
         }
+
         return false;
     }
 
@@ -129,12 +104,17 @@ class BaseController extends Controller
     /**
      * Debug mode on
      *
-     * @param string $content
+     * @param string|object|array|null $content
+     * @throws \JsonException
      */
-    protected function logResult(string $content): void
+    protected function logResult(string|object|array|null $content): void
     {
         if ($this->debug()) {
-            Log::debug("RAW SES REQUEST BODY:\n" . $content);
+            if (is_array($content) || is_object($content)) {
+                $content = json_encode($content, JSON_THROW_ON_ERROR);
+            }
+
+            Log::debug("RAW SES REQUEST BODY: " . $content);
         }
     }
 

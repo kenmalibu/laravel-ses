@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Juhasev\LaravelSes\Controllers;
 
 use Exception;
@@ -20,7 +22,7 @@ class LinkController extends BaseController
      * @return RedirectResponse|Redirector
      * @throws Exception
      */
-    public function click($linkIdentifier)
+    public function click($linkIdentifier): Redirector|RedirectResponse
     {
         try {
             $emailLink = ModelResolver::get('EmailLink')::whereLinkIdentifier($linkIdentifier)->firstOrFail();
@@ -44,8 +46,7 @@ class LinkController extends BaseController
      *
      * @param EmailLinkContract $emailLink
      */
-
-    protected function sendEvent(EmailLinkContract $emailLink)
+    protected function sendEvent(EmailLinkContract $emailLink): void
     {
         event(EventFactory::create('Link', 'EmailLink', $emailLink->getId()));
     }
