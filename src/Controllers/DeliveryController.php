@@ -30,6 +30,8 @@ class DeliveryController extends BaseController
      */
     public function delivery(ServerRequestInterface $request): JsonResponse
     {
+        Log::debug('Laravel-Ses :: DeliveryController RAW Request: '.print_r($request, true));
+
         $response = Message::fromPsrRequest($request);
 
         $this->logResult($response);
