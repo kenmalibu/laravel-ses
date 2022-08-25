@@ -108,6 +108,18 @@ class SentEmail extends Model implements SentEmailContract
     }
 
     /**
+     * Set message id
+     *
+     * @param $messageId
+     */
+    public function setMessageId($messageId)
+    {
+        $this->message_id = $messageId;
+
+        $this->save();
+    }
+
+    /**
      * @return mixed
      */
     public function getId()

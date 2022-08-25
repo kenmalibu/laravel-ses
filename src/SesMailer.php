@@ -214,9 +214,7 @@ class SesMailer extends Mailer implements SesMailerInterface
         $sentMessage = parent::sendSymfonyMessage($message);
 
         if ($sentMessage !== null) {
-            $sentEmail->update([
-                'message_id' => $sentMessage->getMessageId()
-            ]);
+            $sentEmail->setMessageId($sentMessage->getMessageId());
         }
 
         $this->sendEvent($sentEmail);

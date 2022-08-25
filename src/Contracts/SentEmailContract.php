@@ -6,6 +6,8 @@ namespace Juhasev\LaravelSes\Contracts;
 
 interface SentEmailContract
 {
+    public function setMessageId($messageId);
+
     public function setDeliveredAt($time);
     
     public function emailOpen();
