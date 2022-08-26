@@ -26,8 +26,8 @@ use PHPHtmlParser\Exceptions\CircularException;
 use PHPHtmlParser\Exceptions\CurlException;
 use PHPHtmlParser\Exceptions\NotLoadedException;
 use PHPHtmlParser\Exceptions\StrictException;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mime\Email;
+use Throwable;
 
 class SesMailer extends Mailer implements SesMailerInterface
 {
@@ -73,15 +73,14 @@ class SesMailer extends Mailer implements SesMailerInterface
     /**
      * Throw SampleNinja exceptions
      *
-     * @param TransportExceptionInterface $e
+     * @param Throwable $e
      * @throws LaravelSesDailyQuotaExceededException
      * @throws LaravelSesInvalidSenderAddressException
      * @throws LaravelSesMaximumSendingRateExceeded
      * @throws LaravelSesTemporaryServiceFailureException|LaravelSesSendFailedException
      */
-    protected function throwException(TransportExceptionInterface $e): void
+    protected function throwException(Throwable $e): void
     {
-
         $errorMessage = $this->parseErrorFromSymfonyTransportException($e->getMessage());
         $errorCode = $this->parseErrorCode($errorMessage);
 
@@ -133,10 +132,15 @@ class SesMailer extends Mailer implements SesMailerInterface
     /**
      * Send a new message using a view.
      *
-     * @param MailableContract|string|array  $view
-     * @param  array  $data
-     * @param  Closure|string|null  $callback
+     * @param MailableContract|string|array $view
+     * @param array $data
+     * @param Closure|string|null $callback
      * @return SentMessage|null
+     * @throws LaravelSesDailyQuotaExceededException
+     * @throws LaravelSesInvalidSenderAddressException
+     * @throws LaravelSesMaximumSendingRateExceeded
+     * @throws LaravelSesSendFailedException
+     * @throws LaravelSesTemporaryServiceFailureException
      */
     public function send($view, array $data = [], $callback = null): SentMessage|null
     {
@@ -175,8 +179,8 @@ class SesMailer extends Mailer implements SesMailerInterface
         if ($this->shouldSendMessage($symfonyMessage, $data)) {
             try {
                 $this->sendSymfonyMessage($symfonyMessage);
-            } catch (LaravelSesTooManyRecipientsException|ChildNotFoundException|CircularException|CurlException|NotLoadedException|StrictException $e) {
-                report($e);
+            } catch (Throwable $e) {
+                $this->throwException($e);
             }
         }
 
