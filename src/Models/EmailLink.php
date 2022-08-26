@@ -23,54 +23,31 @@ class EmailLink extends Model implements EmailLinkContract
         'click_count' => 'integer',
     ];
 
-    /**
-     * Relationship to parent
-     *
-     * @return BelongsTo
-     * @throws \Exception
-     */
-    public function sentEmail()
+    public function sentEmail(): BelongsTo
     {
         return $this->belongsTo(ModelResolver::get('SentEmail'));
     }
 
-    /**
-     * Get clicked
-     *
-     * @param $clicked
-     * @return $this
-     */
-    public function setClicked(bool $clicked)
+    public function setClicked(bool $clicked): self
     {
-        $this->clicked = $clicked;
-        $this->save();
+        $this->update(['clicked' => $clicked]);
+
         return $this;
     }
 
-    /**
-     * Increment click count
-     *
-     * @return $this
-     */
-    public function incrementClickCount()
+    public function incrementClickCount(): self
     {
-        $this->click_count++;
-        $this->save();
+        $this->increment('click_count');
+
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId()
+    public function getId(): mixed
     {
         return $this->getKey();
     }
 
-    /**
-     * @return mixed
-     */
-    public function originalUrl()
+    public function originalUrl(): string
     {
         return $this->original_url;
     }

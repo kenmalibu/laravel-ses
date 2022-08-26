@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Juhasev\LaravelSes\Models;
 
-use Exception;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -29,100 +29,57 @@ class SentEmail extends Model implements SentEmailContract
         'bounce_tracking' => 'boolean',
     ];
 
-    /**
-     * Opened relationship
-     *
-     * @return HasOne
-     * @throws Exception
-     */
-    public function emailOpen()
+    protected $hidden = [
+        'complaint_tracking',
+        'delivery_tracking',
+        'bounce_tracking',
+    ];
+
+    public function emailOpen(): HasOne
     {
         return $this->hasOne(ModelResolver::get('EmailOpen'));
     }
 
-    /**
-     * Email links relationship
-     *
-     * @return HasMany
-     * @throws Exception
-     */
-    public function emailLinks()
+    public function emailLinks(): HasMany
     {
         return $this->hasMany(ModelResolver::get('EmailLink'));
     }
 
-    /**
-     * Email bounce relationship
-     *
-     * @return HasOne
-     * @throws Exception
-     */
-    public function emailBounce()
+    public function emailBounce(): HasOne
     {
         return $this->hasOne(ModelResolver::get('EmailBounce'));
     }
 
-    /**
-     * Email complaint relationship
-     *
-     * @return HasOne
-     * @throws Exception
-     */
-    public function emailComplaint()
+    public function emailComplaint(): HasOne
     {
         return $this->hasOne(ModelResolver::get('EmailComplaint'));
     }
 
-    /**
-     * Email reject relationship
-     *
-     * @return HasOne
-     * @throws Exception
-     */
-    public function emailReject()
+    public function emailReject(): HasOne
     {
         return $this->hasOne(ModelResolver::get('EmailReject'));
     }
 
-    /**
-     * Parent relationship to batch
-     *
-     * @return BelongsTo
-     * @throws Exception
-     */
-    public function batch()
+    public function batch(): BelongsTo
     {
         return $this->belongsTo(ModelResolver::get('Batch'));
     }
 
-    /**
-     * Set delivery time for the email
-     *
-     * @param $time
-     */
-    public function setDeliveredAt($time)
+    public function setDeliveredAt(DateTimeInterface $time): self
     {
-        $this->delivered_at = $time;
+        $this->update(['delivered_at' => $time]);
 
-        $this->save();
+        return $this;
     }
 
-    /**
-     * Set message id
-     *
-     * @param $messageId
-     */
-    public function setMessageId($messageId)
+    public function setMessageId(string $messageId): self
     {
-        $this->message_id = $messageId;
+        $this->update(['message_id' => $messageId]);
 
-        $this->save();
+        return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId()
+    public function getId(): mixed
     {
         return $this->getKey();
     }

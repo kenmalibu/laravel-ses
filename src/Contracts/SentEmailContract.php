@@ -4,21 +4,29 @@ declare(strict_types=1);
 
 namespace Juhasev\LaravelSes\Contracts;
 
+use DateTimeInterface;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
+/**
+ * @method static loadMissing($relations)
+ * @method array toArray()
+ */
 interface SentEmailContract
 {
-    public function setMessageId($messageId);
+    public function setMessageId(string $messageId): self;
 
-    public function setDeliveredAt($time);
+    public function setDeliveredAt(DateTimeInterface $time): self;
     
-    public function emailOpen();
+    public function emailOpen(): HasOne;
 
-    public function emailLinks();
+    public function emailLinks(): HasMany;
 
-    public function emailBounce();
+    public function emailBounce(): HasOne;
 
-    public function emailComplaint();
+    public function emailComplaint(): HasOne;
 
-    public function emailReject();
+    public function emailReject(): HasOne;
 
-    public function getId();
+    public function getId(): mixed;
 }

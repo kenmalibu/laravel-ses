@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Juhasev\LaravelSes\Models;
 
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Juhasev\LaravelSes\Contracts\BatchContract;
@@ -21,12 +20,7 @@ class Batch extends Model implements BatchContract
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Model relation to sent emails
-     * @return HasMany
-     * @throws Exception
-     */
-    public function sentEmails()
+    public function sentEmails(): HasMany
     {
         return $this->hasMany(ModelResolver::get('SentEmail'));
     }
@@ -37,15 +31,12 @@ class Batch extends Model implements BatchContract
      * @param string $name
      * @return BatchContract|null
      */
-    public static function resolve(string $name): ?BatchContract
+    public static function resolve(string $name): BatchContract|null
     {
         return self::where('name', $name)->first();
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId()
+    public function getId(): mixed
     {
         return $this->getKey();
     }
