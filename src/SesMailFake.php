@@ -13,7 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Testing\Fakes\MailFake;
 use Juhasev\LaravelSes\Contracts\SentEmailContract;
 use Juhasev\LaravelSes\Exceptions\LaravelSesTooManyRecipientsException;
-use Juhasev\LaravelSes\Factories\EventFactory;
+use Juhasev\LaravelSes\Factories\Events\SesSentEvent;
 use Symfony\Component\Mime\Email;
 
 class SesMailFake extends MailFake implements SesMailerInterface
@@ -116,6 +116,6 @@ class SesMailFake extends MailFake implements SesMailerInterface
      */
     protected function sendEvent(SentEmailContract $sentEmail)
     {
-        event(EventFactory::create('Sent', 'SentEmail', $sentEmail->getId()));
+        event(new SesSentEvent($sentEmail));
     }
 }

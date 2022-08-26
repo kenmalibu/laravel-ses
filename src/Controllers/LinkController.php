@@ -10,7 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Log;
 use Juhasev\LaravelSes\Contracts\EmailLinkContract;
-use Juhasev\LaravelSes\Factories\EventFactory;
+use Juhasev\LaravelSes\Factories\Events\SesLinkEvent;
 use Juhasev\LaravelSes\ModelResolver;
 
 class LinkController extends BaseController
@@ -48,6 +48,6 @@ class LinkController extends BaseController
      */
     protected function sendEvent(EmailLinkContract $emailLink): void
     {
-        event(EventFactory::create('Link', 'EmailLink', $emailLink->getId()));
+        event(new SesLinkEvent($emailLink));
     }
 }

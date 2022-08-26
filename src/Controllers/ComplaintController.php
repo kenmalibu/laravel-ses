@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 use JsonException;
 use Juhasev\LaravelSes\Contracts\EmailComplaintContract;
 use Juhasev\LaravelSes\DataTransferObjects\MessageContent;
-use Juhasev\LaravelSes\Factories\EventFactory;
+use Juhasev\LaravelSes\Factories\Events\SesComplaintEvent;
 use Juhasev\LaravelSes\ModelResolver;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -114,6 +114,6 @@ class ComplaintController extends BaseController
      */
     protected function sendEvent(EmailComplaintContract $complaint): void
     {
-        event(EventFactory::create('Complaint', 'EmailComplaint', $complaint->getId()));
+        event(new SesComplaintEvent($complaint));
     }
 }

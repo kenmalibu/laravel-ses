@@ -20,7 +20,7 @@ use Juhasev\LaravelSes\Exceptions\LaravelSesMaximumSendingRateExceeded;
 use Juhasev\LaravelSes\Exceptions\LaravelSesSendFailedException;
 use Juhasev\LaravelSes\Exceptions\LaravelSesTemporaryServiceFailureException;
 use Juhasev\LaravelSes\Exceptions\LaravelSesTooManyRecipientsException;
-use Juhasev\LaravelSes\Factories\EventFactory;
+use Juhasev\LaravelSes\Factories\Events\SesSentEvent;
 use PHPHtmlParser\Exceptions\ChildNotFoundException;
 use PHPHtmlParser\Exceptions\CircularException;
 use PHPHtmlParser\Exceptions\CurlException;
@@ -222,6 +222,6 @@ class SesMailer extends Mailer implements SesMailerInterface
 
     protected function sendEvent(SentEmailContract $sentEmail): void
     {
-        event(EventFactory::create('Sent', 'SentEmail', $sentEmail->getId()));
+        event(new SesSentEvent($sentEmail));
     }
 }

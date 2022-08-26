@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Juhasev\LaravelSes\Contracts\EmailOpenContract;
-use Juhasev\LaravelSes\Factories\EventFactory;
+use Juhasev\LaravelSes\Factories\Events\SesOpenEvent;
 use Juhasev\LaravelSes\ModelResolver;
 
 class OpenController extends BaseController
@@ -54,6 +54,6 @@ class OpenController extends BaseController
      */
     protected function sendEvent(EmailOpenContract $emailOpen): void
     {
-        event(EventFactory::create('Open', 'EmailOpen', $emailOpen->getId()));
+        event(new SesOpenEvent($emailOpen));
     }
 }

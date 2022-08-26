@@ -4,32 +4,22 @@ declare(strict_types=1);
 
 namespace Juhasev\LaravelSes\Factories\Events;
 
-use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Queue\SerializesModels;
-use Juhasev\LaravelSes\Factories\BaseEvent;
-use Juhasev\LaravelSes\ModelResolver;
+use Juhasev\LaravelSes\Contracts\EmailBounceContract;
+use Juhasev\LaravelSes\Factories\EventInterface;
 
-class SesBounceEvent extends BaseEvent
+class SesBounceEvent implements EventInterface
 {
     use SerializesModels;
 
-    public $data;
+    public array $data;
 
-    /**
-     * Create a new event instance.
-     *
-     * @param string $modelName
-     * @param int $modelId
-     * @throws Exception
-     * @throws ModelNotFoundException
-     */
-    public function __construct(string $modelName, int $modelId)
+    public function __construct(EmailBounceContract $model)
     {
-        $this->data = ModelResolver::get($modelName)::with([
+        $this->data = $model->loadMissing([
             'sentEmail:id,message_id,email,batch_id,sent_at,delivered_at',
             'sentEmail.batch'
-        ])->findOrFail($modelId)->toArray();
+        ])->toArray();
     }
 
 }

@@ -4,31 +4,18 @@ declare(strict_types=1);
 
 namespace Juhasev\LaravelSes\Factories\Events;
 
-use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
-use Juhasev\LaravelSes\Factories\BaseEvent;
-use Juhasev\LaravelSes\ModelResolver;
+use Juhasev\LaravelSes\Contracts\SentEmailContract;
+use Juhasev\LaravelSes\Factories\EventInterface;
 
-class SesDeliveryEvent extends BaseEvent
+class SesDeliveryEvent implements EventInterface
 {
     use SerializesModels;
 
-    public $data;
+    public array $data;
 
-    /**
-     * Create a new event instance.
-     *
-     * @param string $modelName
-     * @param int $modelId
-     * @throws Exception
-     * @throws ModelNotFoundException
-     */
-    public function __construct(string $modelName, int $modelId)
+    public function __construct(SentEmailContract $model)
     {
-        $this->data = ModelResolver::get($modelName)::select([
-                'id', 'message_id', 'email', 'batch_id', 'sent_at', 'delivered_at']
-        )->with('batch')->findOrFail($modelId)->toArray();
+        $this->data = $model->loadMissing('batch')->toArray();
     }
 }
