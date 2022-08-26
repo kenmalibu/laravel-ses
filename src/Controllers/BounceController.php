@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 use JsonException;
 use Juhasev\LaravelSes\Contracts\EmailBounceContract;
 use Juhasev\LaravelSes\DataTransferObjects\MessageContent;
-use Juhasev\LaravelSes\Factories\EventFactory;
+use Juhasev\LaravelSes\Factories\Events\SesBounceEvent;
 use Juhasev\LaravelSes\ModelResolver;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -115,6 +115,6 @@ class BounceController extends BaseController
      */
     protected function sendEvent(EmailBounceContract $bounce): void
     {
-        event(EventFactory::create('Bounce', 'EmailBounce', $bounce->getId()));
+        event(new SesBounceEvent($bounce));
     }
 }

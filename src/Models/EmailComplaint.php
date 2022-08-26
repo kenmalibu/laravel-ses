@@ -22,21 +22,12 @@ class EmailComplaint extends Model implements EmailComplaintContract
         'complained_at' => 'datetime',
     ];
 
-    /**
-     * Relation ship
-     *
-     * @return BelongsTo
-     * @throws \Exception
-     */
-    public function sentEmail()
+    public function sentEmail(): BelongsTo
     {
         return $this->belongsTo(ModelResolver::get('SentEmail'));
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId()
+    public function getId(): mixed
     {
         return $this->getKey();
     }

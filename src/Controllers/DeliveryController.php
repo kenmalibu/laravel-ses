@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 use JsonException;
 use Juhasev\LaravelSes\Contracts\SentEmailContract;
 use Juhasev\LaravelSes\DataTransferObjects\MessageContent;
-use Juhasev\LaravelSes\Factories\EventFactory;
+use Juhasev\LaravelSes\Factories\Events\SesDeliveryEvent;
 use Juhasev\LaravelSes\ModelResolver;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -111,6 +111,6 @@ class DeliveryController extends BaseController
      */
     protected function sendEvent(SentEmailContract $sentEmail): void
     {
-        event(EventFactory::create('Delivery', 'SentEmail', $sentEmail->getId()));
+        event(new SesDeliveryEvent($sentEmail));
     }
 }
