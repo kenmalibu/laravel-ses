@@ -116,7 +116,7 @@ class MailProcessor
         foreach ($anchors as $anchor) {
             $originalUrl = $anchor->getAttribute('href');
 
-            if ($originalUrl !== null) {
+            if ((string) $originalUrl !== '') {
                 $anchor->setAttribute('href', $this->createAppLink($originalUrl));
             }
         }
