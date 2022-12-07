@@ -84,4 +84,25 @@ class MailProcessorTest extends UnitTestCase
         $this->assertEquals('https://click.me', $emailLink['original_url']);
         $this->assertEquals(1, $emailLink['sent_email_id']);
     }
+
+    public function testLinksWithoutHrefAreSkipped()
+    {
+        // Body of text with one link without href in it
+        $body = "This is a test body of text, <a>Empty Link</a>";
+
+        $sentEmail = ModelResolver::get('SentEmail')::create([
+            'email' => 'lamela@yahoo.com',
+            'message_id' => 'somerandomid@swift.generated'
+        ]);
+
+        $mailProcessor = new MailProcessor($sentEmail, $body);
+
+        $parsedBody = $mailProcessor->linkTracking()->getEmailBody();
+
+        // Make sure body of email is now correct
+        $this->assertEquals(
+            'This is a test body of text, <a>Empty Link</a>',
+            $parsedBody
+        );
+    }
 }
