@@ -115,7 +115,10 @@ class MailProcessor
 
         foreach ($anchors as $anchor) {
             $originalUrl = $anchor->getAttribute('href');
-            $anchor->setAttribute('href', $this->createAppLink($originalUrl));
+
+            if ((string) $originalUrl !== '') {
+                $anchor->setAttribute('href', $this->createAppLink($originalUrl));
+            }
         }
 
         $this->setEmailBody($dom->innerHtml);
