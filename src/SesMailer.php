@@ -27,6 +27,7 @@ use PHPHtmlParser\Exceptions\CurlException;
 use PHPHtmlParser\Exceptions\NotLoadedException;
 use PHPHtmlParser\Exceptions\StrictException;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Header\Headers;
 use Throwable;
 
 class SesMailer extends Mailer implements SesMailerInterface
@@ -204,24 +205,39 @@ class SesMailer extends Mailer implements SesMailerInterface
     {
         $headers = $message->getHeaders();
 
-        # staging-ses-complaint-us-west-2
-        $configurationSetName = App::environment() . '-ses-' . config('services.ses.region');
-        $headers->addTextHeader('X-SES-CONFIGURATION-SET', $configurationSetName);
-
         $sentEmail = $this->initMessage($message);
+
+        $this->appendToHeaders($sentEmail, $headers);
+
+        $message->setHeaders($headers);
 
         $newBody = $this->setupTracking((string) $message->getHtmlBody(), $sentEmail);
 
         $message->html($newBody);
 
         // Sending email first, in case sendEvent fails
-        $sentMessage = parent::sendSymfonyMessage($message);
-
-        if ($sentMessage !== null) {
-            $sentEmail->setMessageId($sentMessage->getMessageId());
-        }
+        parent::sendSymfonyMessage($message);
 
         $this->sendEvent($sentEmail);
+    }
+
+    /**
+     * Append unique Message-ID to the headers. Please note AWS SES will store reference
+     * to message ID internally while the outgoing email with get another Message-ID specific to
+     * AWS SES. However, delivery reporting return the original set Message-ID.
+     */
+    protected function appendToHeaders(SentEmailContract $sentEmail, Headers &$headers): void
+    {
+        $headers->addIdHeader('Message-ID', $sentEmail->message_id);
+        $headers->addTextHeader('X-SES-CONFIGURATION-SET', $this->getConfigurationSetName());
+    }
+
+    /**
+     * Returns AWS SES configuration set name like staging-ses-complaint-us-west-2
+     */
+    protected function getConfigurationSetName(): string
+    {
+        return App::environment() . '-ses-' . config('services.ses.region');
     }
 
     protected function sendEvent(SentEmailContract $sentEmail): void
