@@ -215,7 +215,11 @@ class SesMailer extends Mailer implements SesMailerInterface
         $message->html($newBody);
 
         // Sending email first, in case sendEvent fails
-        parent::sendSymfonyMessage($message);
+        $sentMessage = parent::sendSymfonyMessage($message);
+
+        if ($sentMessage !== null) {
+            $sentEmail->setMessageId($sentMessage->getMessageId());
+        }
 
         $this->sendEvent($sentEmail);
     }
