@@ -12,21 +12,10 @@ storage for space and proper indexing. This package is compatible with Laravel 9
 Laravel SES also supports SMTP errors codes will throw meaning exceptions like when you exceed your rate limits so you can handle proper back off.
 
 Laravel version support:
-- If you are using Laravel 9 use 2.x
-- If you are using Laravel 7 or 8 use 1.x
-- If you are using Laravel 6 use v0.8.4
-
-In your composer.json use
-
-```json
-"juhasev/laravel-ses": "dev-master"
-```
-
-Then run
-
-```bash
-composer install
-```
+- If you are using Laravel 10 use `v4.*`
+- If you are using Laravel 9 use `v3.*`
+- If you are using Laravel 7 or 8 use `v1.1.5`
+- If you are using Laravel 6 use `v0.8.4`
 
 ## Installation
 Install via composer

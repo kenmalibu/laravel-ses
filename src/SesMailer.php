@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Juhasev\LaravelSes;
 
 use Closure;
-use Illuminate\Contracts\Mail\Mailable;
 use Illuminate\Contracts\Mail\Mailable as MailableContract;
 use Illuminate\Mail\SentMessage;
-use Illuminate\Support\Carbon;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
@@ -20,7 +18,6 @@ use Juhasev\LaravelSes\Exceptions\LaravelSesMaximumSendingRateExceeded;
 use Juhasev\LaravelSes\Exceptions\LaravelSesSendFailedException;
 use Juhasev\LaravelSes\Exceptions\LaravelSesTemporaryServiceFailureException;
 use Juhasev\LaravelSes\Exceptions\LaravelSesTooManyRecipientsException;
-use Juhasev\LaravelSes\Factories\Events\SesSentEvent;
 use PHPHtmlParser\Exceptions\ChildNotFoundException;
 use PHPHtmlParser\Exceptions\CircularException;
 use PHPHtmlParser\Exceptions\CurlException;
@@ -32,44 +29,8 @@ use Throwable;
 
 class SesMailer extends Mailer implements SesMailerInterface
 {
+    use SesMailerTrait;
     use TrackingTrait;
-
-    /**
-     * Init message (this is always called)
-     * Creates database entry for the sent email
-     *
-     * @param Email $message
-     * @return SentEmailContract
-     * @throws LaravelSesTooManyRecipientsException
-     */
-    public function initMessage(Email $message): SentEmailContract
-    {
-        $this->checkNumberOfRecipients($message);
-
-        return ModelResolver::get('SentEmail')::create([
-            'message_id' => $message->generateMessageId(),
-            'email' => $message->getTo()[0]->getAddress(),
-            'batch_id' => $this->getBatchId(),
-            'sent_at' => Carbon::now(),
-            'delivery_tracking' => $this->deliveryTracking,
-            'complaint_tracking' => $this->complaintTracking,
-            'bounce_tracking' => $this->bounceTracking
-        ]);
-    }
-
-    /**
-     * Check message recipient for tracking
-     * Open tracking etc won't work if emails are sent to more than one recipient at a time
-     *
-     * @param Email $message
-     * @throws LaravelSesTooManyRecipientsException
-     */
-    protected function checkNumberOfRecipients(Email $message): void
-    {
-        if (sizeOf($message->getTo()) > 1) {
-            throw new LaravelSesTooManyRecipientsException("Tried to send to too many emails only one email may be set");
-        }
-    }
 
     /**
      * Throw SampleNinja exceptions
@@ -203,17 +164,11 @@ class SesMailer extends Mailer implements SesMailerInterface
      */
     protected function sendSymfonyMessage(Email $message): void
     {
-        $headers = $message->getHeaders();
-
         $sentEmail = $this->initMessage($message);
 
-        $this->appendToHeaders($sentEmail, $headers);
+        $message->setHeaders($this->appendToHeaders($message->getHeaders(), $sentEmail));
 
-        $message->setHeaders($headers);
-
-        $newBody = $this->setupTracking((string) $message->getHtmlBody(), $sentEmail);
-
-        $message->html($newBody);
+        $message->html($this->setupTracking((string) $message->getHtmlBody(), $sentEmail));
 
         // Sending email first, in case sendEvent fails
         parent::sendSymfonyMessage($message);
@@ -221,15 +176,12 @@ class SesMailer extends Mailer implements SesMailerInterface
         $this->sendEvent($sentEmail);
     }
 
-    /**
-     * Append unique Message-ID to the headers. Please note AWS SES will store reference
-     * to message ID internally while the outgoing email with get another Message-ID specific to
-     * AWS SES. However, delivery reporting return the original set Message-ID.
-     */
-    protected function appendToHeaders(SentEmailContract $sentEmail, Headers &$headers): void
+    protected function appendToHeaders(Headers $headers, SentEmailContract $email): Headers
     {
-        $headers->addIdHeader('Message-ID', $sentEmail->message_id);
+        $headers->addIdHeader('Message-ID', $email->getMessageId());
         $headers->addTextHeader('X-SES-CONFIGURATION-SET', $this->getConfigurationSetName());
+
+        return $headers;
     }
 
     /**
@@ -238,10 +190,5 @@ class SesMailer extends Mailer implements SesMailerInterface
     protected function getConfigurationSetName(): string
     {
         return App::environment() . '-ses-' . config('services.ses.region');
-    }
-
-    protected function sendEvent(SentEmailContract $sentEmail): void
-    {
-        event(new SesSentEvent($sentEmail));
     }
 }
