@@ -142,7 +142,7 @@ class SesMailer extends Mailer implements SesMailerInterface
             try {
                 $this->sendSymfonyMessage($symfonyMessage);
             } catch (Throwable $e) {
-                $this->throwException($e);
+                $this->throwException($e, $symfonyMessage);
             }
         }
 
