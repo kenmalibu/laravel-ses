@@ -35,13 +35,12 @@ class SesMailer extends Mailer implements SesMailerInterface
     /**
      * Throw SampleNinja exceptions
      *
-     * @param Throwable $e
      * @throws LaravelSesDailyQuotaExceededException
      * @throws LaravelSesInvalidSenderAddressException
      * @throws LaravelSesMaximumSendingRateExceeded
      * @throws LaravelSesTemporaryServiceFailureException|LaravelSesSendFailedException
      */
-    protected function throwException(Throwable $e): void
+    protected function throwException(Throwable $e, Email $symfonyMessage): void
     {
         $errorMessage = $this->parseErrorFromSymfonyTransportException($e->getMessage());
         $errorCode = $this->parseErrorCode($errorMessage);
@@ -64,6 +63,7 @@ class SesMailer extends Mailer implements SesMailerInterface
             throw new LaravelSesTemporaryServiceFailureException($errorMessage, $errorCode);
         }
 
+        Log::error('Symfony Message: ' . print_r($symfonyMessage->getHeaders()->toArray(), true));
         throw new LaravelSesSendFailedException($errorMessage, $errorCode);
     }
 
