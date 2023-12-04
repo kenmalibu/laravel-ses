@@ -89,7 +89,7 @@ class DeliveryController extends BaseController
                 ->firstOrFail();
 
         } catch (ModelNotFoundException $e) {
-            Log::error('Message ID (' . $message->id . ') not found in the SentEmail, this email is likely sent without Laravel SES. Skipping delivery processing...');
+            $this->logMessage('Message ID (' . $message->id . ') not found in the SentEmail, this email is likely sent without Laravel SES. Skipping delivery processing...');
             return;
         }
 
