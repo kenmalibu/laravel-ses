@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   psalm:
-    name: psalm
+    name: lint
     runs-on: ubuntu-latest
 
     steps:
@@ -13,7 +13,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: 8.2
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
           coverage: none
 
@@ -27,4 +27,4 @@ jobs:
         run: composer install -n --prefer-dist
 
       - name: Run psalm
-        run: composer run psalm
+        run: composer lint
