@@ -8,11 +8,6 @@ use Exception;
 use Juhasev\LaravelSes\Contracts\BatchContract;
 use Juhasev\LaravelSes\Contracts\SentEmailContract;
 use Juhasev\LaravelSes\Models\Batch;
-use PHPHtmlParser\Exceptions\ChildNotFoundException;
-use PHPHtmlParser\Exceptions\CircularException;
-use PHPHtmlParser\Exceptions\CurlException;
-use PHPHtmlParser\Exceptions\NotLoadedException;
-use PHPHtmlParser\Exceptions\StrictException;
 
 /**
  * @psalm-suppress UndefinedMethod
@@ -35,11 +30,6 @@ trait TrackingTrait
 
     /**
      * @param string $setupTracking
-     * @throws ChildNotFoundException
-     * @throws CircularException
-     * @throws CurlException
-     * @throws NotLoadedException
-     * @throws StrictException
      * @throws Exception
      */
     public function setupTracking($setupTracking, SentEmailContract $sentEmail): string
@@ -90,7 +80,7 @@ trait TrackingTrait
     {
         return $this->batch?->getId();
     }
-    
+
     public function enableOpenTracking(): SesMailerInterface
     {
         $this->openTracking = true;

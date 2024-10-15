@@ -7,13 +7,8 @@ namespace Juhasev\LaravelSes;
 use Exception;
 use Juhasev\LaravelSes\Contracts\BatchContract;
 use Juhasev\LaravelSes\Contracts\SentEmailContract;
-use PHPHtmlParser\Dom;
-use PHPHtmlParser\Exceptions\ChildNotFoundException;
-use PHPHtmlParser\Exceptions\CircularException;
-use PHPHtmlParser\Exceptions\CurlException;
-use PHPHtmlParser\Exceptions\NotLoadedException;
-use PHPHtmlParser\Exceptions\StrictException;
 use Ramsey\Uuid\Uuid;
+use voku\helper\HtmlDomParser;
 
 class MailProcessor
 {
@@ -65,20 +60,13 @@ class MailProcessor
     }
 
     /**
-     * @throws ChildNotFoundException
-     * @throws CircularException
-     * @throws CurlException
-     * @throws NotLoadedException
-     * @throws StrictException
      * @throws Exception
      */
     public function linkTracking(): self
     {
-        $dom = new Dom;
-        $dom->loadStr($this->getEmailBody());
-        $anchors = $dom->find('a');
+        $dom = HtmlDomParser::str_get_html($this->getEmailBody());
 
-        foreach ($anchors as $anchor) {
+        foreach ($dom->findMulti('a') as $anchor) {
             $originalUrl = $anchor->getAttribute('href');
 
             if ((string) $originalUrl !== '') {
