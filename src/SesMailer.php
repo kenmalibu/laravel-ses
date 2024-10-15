@@ -18,11 +18,6 @@ use Juhasev\LaravelSes\Exceptions\LaravelSesMaximumSendingRateExceeded;
 use Juhasev\LaravelSes\Exceptions\LaravelSesSendFailedException;
 use Juhasev\LaravelSes\Exceptions\LaravelSesTemporaryServiceFailureException;
 use Juhasev\LaravelSes\Exceptions\LaravelSesTooManyRecipientsException;
-use PHPHtmlParser\Exceptions\ChildNotFoundException;
-use PHPHtmlParser\Exceptions\CircularException;
-use PHPHtmlParser\Exceptions\CurlException;
-use PHPHtmlParser\Exceptions\NotLoadedException;
-use PHPHtmlParser\Exceptions\StrictException;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Header\Headers;
 use Throwable;
@@ -132,12 +127,7 @@ class SesMailer extends Mailer implements SesMailerInterface
     }
 
     /**
-     * @throws ChildNotFoundException
-     * @throws CircularException
-     * @throws CurlException
      * @throws LaravelSesTooManyRecipientsException
-     * @throws NotLoadedException
-     * @throws StrictException
      */
     protected function sendSymfonyMessage(Email $message): void
     {
