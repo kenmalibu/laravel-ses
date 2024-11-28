@@ -38,19 +38,19 @@ class SnsSetup
 
         $this->ses = new SesV2Client([
             'credentials' => [
-                'key' => config('services.ses.key'),
-                'secret' => config('services.ses.secret')
+                'key' => $_SERVER['AWS_ACCESS_KEY_ID'] ?? env('AWS_ACCESS_KEY_ID'),
+                'secret' => $_SERVER['AWS_SECRET_ACCESS_KEY'] ?? env('AWS_SECRET_ACCESS_KEY')
             ],
-            'region' => config('services.ses.region'),
+            'region' => $_SERVER['AWS_DEFAULT_REGION'] ?? env('AWS_DEFAULT_REGION'),
             'version' => 'latest'
         ]);
 
         $this->sns = new SnsClient([
             'credentials' => [
-                'key' => config('services.ses.key'),
-                'secret' => config('services.ses.secret')
+                'key' => $_SERVER['AWS_ACCESS_KEY_ID'] ?? env('AWS_ACCESS_KEY_ID'),
+                'secret' => $_SERVER['AWS_SECRET_ACCESS_KEY'] ?? env('AWS_SECRET_ACCESS_KEY')
             ],
-            'region' => config('services.ses.region'),
+            'region' => $_SERVER['AWS_DEFAULT_REGION'] ?? env('AWS_DEFAULT_REGION'),
             'version' => 'latest'
         ]);
 
