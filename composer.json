@@ -27,7 +27,7 @@
         "php": "^7.3|^8.0",
         "illuminate/contracts": "^8.0",
         "illuminate/mail": "^8.0",
-        "illuminate/support": "^8.0"
+        "illuminate/support": "^8.0",
         "aws/aws-sdk-php": "^3.288.0",
         "ramsey/uuid": "^4.3",
         "guzzlehttp/guzzle": "^7.8.1",
