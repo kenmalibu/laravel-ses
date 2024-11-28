@@ -24,13 +24,15 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "illuminate/contracts": "^11.0",
+        "php": "^7.3|^8.0",
+        "illuminate/contracts": "^8.0",
+        "illuminate/mail": "^8.0",
+        "illuminate/support": "^8.0",
+        "symfony/psr-http-message-bridge": "^2.0",
         "aws/aws-sdk-php": "^3.288.0",
         "ramsey/uuid": "^4.3",
         "guzzlehttp/guzzle": "^7.8.1",
         "aws/aws-php-sns-message-validator": "^1.7",
-        "symfony/psr-http-message-bridge": "^7.0",
         "nyholm/psr7": "^1.0",
         "voku/simple_html_dom": "^4.8"
     },
